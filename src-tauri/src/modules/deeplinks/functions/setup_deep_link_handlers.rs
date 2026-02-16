@@ -2,7 +2,7 @@ use tauri::AppHandle;
 use tauri::Emitter;
 use tauri_plugin_deep_link::DeepLinkExt;
 
-use crate::modules::utils::focus_main_window;
+use crate::modules::utils::focus_main_window_impl;
 #[cfg(debug_assertions)]
 use crate::modules::utils::get_deeplinks_prefix;
 
@@ -55,7 +55,7 @@ pub fn setup_deep_link_handlers(app: &AppHandle) -> Result<(), Box<dyn std::erro
             );
 
             // Focus the main window
-            focus_main_window(&app_handle);
+            focus_main_window_impl(&app_handle);
 
             // Forward to frontend handler (plugin JS listens for this event)
             // Payload is an array of URLs.

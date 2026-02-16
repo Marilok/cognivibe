@@ -1,9 +1,11 @@
 import { createRootRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import "../App.css";
 import { useEffect, useState } from "react";
 import { platform } from "@tauri-apps/plugin-os";
-import { HeroUIProvider } from "@heroui/react";
+import { HeroUIProvider, ToastProvider } from "@heroui/react";
 import { AppTemplate, PermissionsWelcomeModal } from "../components";
 import BreakManager from "../components/BreakManager";
+import { PomodoroProvider } from "../contexts/PomodoroContext";
 import { setupDeepLinkHandler } from "../utils/deepLinkHandler";
 import { isDevMode } from "../utils/constants";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
@@ -15,7 +17,7 @@ import { invoke } from "@tauri-apps/api/core";
 const PERMISSIONS_ACKNOWLEDGED_KEY = "cognivibe_permissions_acknowledged";
 
 /** Routes that render in their own popup/overlay windows. */
-const POPUP_ROUTES = ["/break-warning", "/break", "/focus-nudge", "/focus-timer"];
+const POPUP_ROUTES = ["/break", "/tour", "/settings"];
 
 export const Route = createRootRoute({
   component: () => {
@@ -101,20 +103,24 @@ export const Route = createRootRoute({
     );
 
     // Popup windows: bare HeroUI only — no AppTemplate, no useUpdater,
-    // no ToastProvider, no UpdateModal. This prevents the updater from
-    // freezing the popup's JS event loop and making buttons unresponsive.
+    // no UpdateModal. Settings window needs ToastProvider for save feedback.
     if (isPopupWindow) {
+      const isSettingsWindow = window.location.pathname.startsWith("/settings");
       return (
         <HeroUIProvider>
           <Outlet />
+          {isSettingsWindow && (
+            <ToastProvider placement="top-center" toastOffset={40} />
+          )}
         </HeroUIProvider>
       );
     }
 
     return (
-      <AppTemplate>
-        <Outlet />
-        <BreakManager />
+      <PomodoroProvider>
+        <AppTemplate>
+          <Outlet />
+          <BreakManager />
         {showPermissionsModal === true && (
           <PermissionsWelcomeModal
             isOpen
@@ -123,6 +129,7 @@ export const Route = createRootRoute({
         )}
         {isDevMode && <TanStackRouterDevtools />}
       </AppTemplate>
+      </PomodoroProvider>
     );
   },
 });

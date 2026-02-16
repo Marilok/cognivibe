@@ -95,12 +95,14 @@ const LazySubmetricsChart = lazy(() =>
     const SubmetricsChartComponent = ({
       data,
       gapSegments,
+      gapSegmentsForBreakBars,
       xTicks,
       xDomainStart,
       xDomainEnd,
     }: {
       data: ChartPoint[];
       gapSegments: GapSegment[];
+      gapSegmentsForBreakBars: GapSegment[];
       xTicks: number[];
       xDomainStart: number;
       xDomainEnd: number;
@@ -109,7 +111,7 @@ const LazySubmetricsChart = lazy(() =>
         <recharts.ResponsiveContainer width="100%" height="100%">
           <recharts.ComposedChart
             data={data}
-            margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+            margin={{ top: 5, right: 28, left: 0, bottom: 5 }}
           >
             <recharts.CartesianGrid
               strokeDasharray="3 3"
@@ -134,6 +136,7 @@ const LazySubmetricsChart = lazy(() =>
               tick={{ fontSize: 12 }}
               axisLine={false}
               tickLine={false}
+              width={45}
             />
             <recharts.Tooltip content={<SubmetricsTooltip />} />
 
@@ -196,8 +199,8 @@ const LazySubmetricsChart = lazy(() =>
               />
             ))}
 
-            {/* Gap markers with coffee mug */}
-            <recharts.Customized component={GapMarkers} gapSegments={gapSegments} />
+            {/* Gap markers with coffee mug (merged bars only) */}
+            <recharts.Customized component={GapMarkers} gapSegments={gapSegmentsForBreakBars} />
 
             {/* Focus line (blue) */}
             <recharts.Line

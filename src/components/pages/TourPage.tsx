@@ -150,7 +150,7 @@ function TourPage() {
 
           {/* Next/End button - white background, purple text, no focus ring */}
           <Button
-            className="bg-white text-primary font-semibold text-lg px-8 focus:outline-none focus:ring-0"
+            className="bg-white text-primary text-lg px-8 focus:outline-none focus:ring-0"
             size="lg"
             onPress={handleNext}
           >

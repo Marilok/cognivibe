@@ -113,7 +113,7 @@ const TourModal = ({ isOpen, onOpenChange, onComplete }: TourModalProps) => {
 
               {/* Next button */}
               <Button
-                className="bg-transparent text-primary font-semibold text-lg px-6"
+                className="bg-transparent text-primary text-lg px-6"
                 size="lg"
                 variant="light"
                 onPress={handleNext}

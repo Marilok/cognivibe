@@ -6,10 +6,8 @@ export const ROUTES = {
   CALLBACK: "/auth/callback",
   NOT_FOUND: "/404",
   TOUR: "/tour",
-  BREAK_WARNING: "/break-warning",
   BREAK: "/break",
-  FOCUS_NUDGE: "/focus-nudge",
-  FOCUS_TIMER: "/focus-timer",
+  SETTINGS: "/settings",
 } as const;
 
 export type AcceptableRoutes = (typeof ROUTES)[keyof typeof ROUTES];

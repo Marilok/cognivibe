@@ -8,6 +8,6 @@ pub use functions::colors::{
     get_utils_prefix,
 };
 pub use functions::capture_screen::capture_screen;
-pub use functions::focus_main_window::focus_main_window;
+pub use functions::focus_main_window::focus_main_window_impl;
 pub use functions::force_destroy_window::force_destroy_window;
 pub use functions::get_api_base_url::get_api_base_url;
