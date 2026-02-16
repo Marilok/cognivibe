@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@heroui/react";
-import { emit } from "@tauri-apps/api/event";
+import { emit, listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useSearch } from "@tanstack/react-router";
-import { convertFileSrc } from "@tauri-apps/api/core";
+import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 import SessionSurvey, { QuestionnaireScores } from "../SessionSurvey";
 import { endSessionWithSurvey } from "../../utils/sessionsApi";
 
@@ -14,12 +14,14 @@ const BreakPage = () => {
     sessionId?: string;
     duration?: string;
     screenshot?: string;
+    pomodoro?: string;
   };
   const reason = search.reason || "long_session";
   const minutes = parseInt(search.minutes || "90", 10);
   const sessionId = search.sessionId || null;
   const duration = parseInt(search.duration || "120", 10);
   const screenshotPath = search.screenshot || "";
+  const isPomodoro = search.pomodoro === "true";
 
   const [secondsLeft, setSecondsLeft] = useState(duration);
   const [timerDone, setTimerDone] = useState(false);
@@ -77,11 +79,20 @@ const BreakPage = () => {
   };
 
   const handleAddTime = () => {
-    if (timerDone) {
-      setTimerDone(false);
-    }
-    setSecondsLeft((prev) => prev + 60);
+    invoke("extend_break_session", { extraSecs: 60 }).catch(() => {});
   };
+
+  // Listen for break-extended (from tray or overlay) — single source of truth
+  useEffect(() => {
+    const unlisten = listen<{ extra_secs: number }>("break-extended", (event) => {
+      const extra = event.payload?.extra_secs ?? 60;
+      setSecondsLeft((prev) => prev + extra);
+      setTimerDone(false);
+    });
+    return () => {
+      unlisten.then((fn) => fn());
+    };
+  }, []);
 
   const handleSurveySubmit = async (scores: QuestionnaireScores) => {
     if (!sessionId || sessionId.trim() === "") {
@@ -97,7 +108,7 @@ const BreakPage = () => {
     setIsSubmitting(true);
     try {
       console.log("[BREAK] Ending session with survey:", { sessionId, scores });
-      await endSessionWithSurvey(sessionId, scores);
+      await endSessionWithSurvey(sessionId, scores, isPomodoro);
       console.log("[BREAK] Session ended successfully");
       await emit("break-completed", {});
       await getCurrentWindow().close();
@@ -113,11 +124,11 @@ const BreakPage = () => {
     }
   };
 
-  const handleSkip = async () => {
+  const handleSkip = useCallback(async () => {
     if (sessionId && sessionId.trim() !== "") {
       try {
         console.log("[BREAK] Ending session on skip:", { sessionId });
-        await endSessionWithSurvey(sessionId);
+        await endSessionWithSurvey(sessionId, undefined, isPomodoro);
         console.log("[BREAK] Session ended successfully on skip");
       } catch (error) {
         console.error("[BREAK] Failed to end session on skip:", error);
@@ -126,12 +137,22 @@ const BreakPage = () => {
     } else {
       console.warn("[BREAK] No sessionId provided, skipping session end");
     }
-    
+
     await emit("break-skipped", {});
     try {
       await getCurrentWindow().close();
     } catch {}
-  };
+  }, [sessionId, isPomodoro]);
+
+  // Listen for tray "Skip break" — close gracefully instead of force_destroy
+  useEffect(() => {
+    const unlisten = listen("tray-skip-break", () => {
+      handleSkip();
+    });
+    return () => {
+      unlisten.then((fn) => fn());
+    };
+  }, [handleSkip]);
 
   const heading =
     reason === "high_cognitive_load" ? "Give your mind a reset" : "Time to recharge";

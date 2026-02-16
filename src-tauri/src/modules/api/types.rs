@@ -72,6 +72,8 @@ pub struct SessionData {
     pub activity_start: Option<String>,
     #[serde(default)]
     pub activity_end: Option<String>,
+    #[serde(default)]
+    pub pomodoro: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

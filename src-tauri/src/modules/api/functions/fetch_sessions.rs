@@ -226,6 +226,7 @@ fn generate_mock_sessions(start_date: &str, end_date: &str) -> Result<Vec<Sessio
                 // In mock mode, activity timestamps match session timestamps
                 activity_start: Some(start_str),
                 activity_end: Some(end_str),
+                pomodoro: false,
             });
         }
 

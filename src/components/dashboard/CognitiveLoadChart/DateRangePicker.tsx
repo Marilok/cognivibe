@@ -139,6 +139,7 @@ function DateRangePicker({
             size="sm"
           >
             <Button
+              className="btn-plain"
               onPress={handleToday}
               isDisabled={isTodayDisabled}
               variant={isTodaySelected ? "solid" : "bordered"}
@@ -147,6 +148,7 @@ function DateRangePicker({
               Today
             </Button>
             <Button
+              className="btn-plain"
               onPress={handleYesterday}
               isDisabled={isYesterdayDisabled}
               variant={isYesterdaySelected ? "solid" : "bordered"}
@@ -155,6 +157,7 @@ function DateRangePicker({
               Yesterday
             </Button>
             <Button
+              className="btn-plain"
               onPress={handleLastWeek}
               isDisabled={isLastWeekDisabled}
               variant={isLastWeekSelected ? "solid" : "bordered"}

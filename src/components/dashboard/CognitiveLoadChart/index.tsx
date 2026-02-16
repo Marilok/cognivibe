@@ -278,6 +278,7 @@ const LazyChart = lazy(() =>
     const ChartComponent = ({
       data,
       gapSegments,
+      gapSegmentsForBreakBars,
       xTicks,
       xDomainStart,
       xDomainEnd,
@@ -286,6 +287,7 @@ const LazyChart = lazy(() =>
     }: {
       data: ChartPoint[];
       gapSegments: GapSegment[];
+      gapSegmentsForBreakBars: GapSegment[];
       xTicks: number[];
       xDomainStart: number;
       xDomainEnd: number;
@@ -296,7 +298,7 @@ const LazyChart = lazy(() =>
         <recharts.ResponsiveContainer width="100%" height="100%">
           <recharts.ComposedChart
             data={data}
-            margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+            margin={{ top: 5, right: 28, left: 0, bottom: 5 }}
           >
             <recharts.CartesianGrid
               strokeDasharray="3 3"
@@ -321,6 +323,7 @@ const LazyChart = lazy(() =>
               tick={{ fontSize: 12 }}
               axisLine={false}
               tickLine={false}
+              width={45}
             />
             <recharts.Tooltip content={<CustomTooltip />} />
             
@@ -354,8 +357,8 @@ const LazyChart = lazy(() =>
               uniqueId={uniqueId}
             />
             
-            {/* Gap markers with coffee mug */}
-            <recharts.Customized component={GapMarkers} gapSegments={gapSegments} />
+            {/* Gap markers with coffee mug (merged bars only) */}
+            <recharts.Customized component={GapMarkers} gapSegments={gapSegmentsForBreakBars} />
             
             {/* Invisible line for tooltip interaction */}
             <recharts.Line
@@ -435,6 +438,7 @@ const CognitiveLoadChart: React.FC<CognitiveLoadChartProps> = ({
   const {
     chartData,
     gapSegments,
+    gapSegmentsForBreakBars,
     xTicks,
     xDomainStart,
     xDomainEnd,
@@ -591,6 +595,30 @@ const CognitiveLoadChart: React.FC<CognitiveLoadChartProps> = ({
       });
     }
 
+    // Merge adjacent gaps when activity between them is shorter than adaptive threshold
+    const MERGE_PERCENT = 0.02;
+    const MIN_MERGE_MS = 3 * 60 * 1000;
+    const MAX_MERGE_MS = 15 * 60 * 1000;
+    const domainSpanMs = xDomainEnd - xDomainStart;
+    const mergeThresholdMs = Math.max(
+      MIN_MERGE_MS,
+      Math.min(MAX_MERGE_MS, domainSpanMs * MERGE_PERCENT)
+    );
+
+    const mergedGaps: GapSegment[] = [];
+    for (const gap of gaps) {
+      const last = mergedGaps[mergedGaps.length - 1];
+      if (last && gap.x1 - last.x2 <= mergeThresholdMs) {
+        last.x2 = gap.x2;
+        last.y2 = gap.y2;
+        last.focus2 = gap.focus2;
+        last.strain2 = gap.strain2;
+        last.energy2 = gap.energy2;
+      } else {
+        mergedGaps.push({ ...gap });
+      }
+    }
+
     // Build stitched data for tooltip interaction
     const stitched: ChartPoint[] = [];
     for (let i = 0; i < points.length; i++) {
@@ -616,6 +644,7 @@ const CognitiveLoadChart: React.FC<CognitiveLoadChartProps> = ({
     return {
       chartData: stitched,
       gapSegments: gaps,
+      gapSegmentsForBreakBars: mergedGaps,
       xTicks,
       xDomainStart,
       xDomainEnd,
@@ -696,13 +725,14 @@ const CognitiveLoadChart: React.FC<CognitiveLoadChartProps> = ({
     <Card className="p-4 bg-content1 border border-white/10 hover:border-white/15 transition-colors">
       <CardBody className="pt-4">
         {chartHeader}
+        {/* SessionBars chartLeftMargin/Right must match chart Y-axis width (45) and margin.right (28) */}
         {sessions.length > 0 && xDomainStart > 0 && xDomainEnd > xDomainStart && (
           <SessionBars
             sessions={sessions}
             xDomainStart={xDomainStart}
             xDomainEnd={xDomainEnd}
-            chartLeftMargin={35}
-            chartRightMargin={10}
+            chartLeftMargin={45}
+            chartRightMargin={28}
           />
         )}
         <div className="h-64">
@@ -717,6 +747,7 @@ const CognitiveLoadChart: React.FC<CognitiveLoadChartProps> = ({
               <LazyChart
                 data={chartData}
                 gapSegments={gapSegments}
+                gapSegmentsForBreakBars={gapSegmentsForBreakBars}
                 xTicks={xTicks}
                 xDomainStart={xDomainStart}
                 xDomainEnd={xDomainEnd}
@@ -727,6 +758,7 @@ const CognitiveLoadChart: React.FC<CognitiveLoadChartProps> = ({
               <LazySubmetricsChart
                 data={chartData}
                 gapSegments={gapSegments}
+                gapSegmentsForBreakBars={gapSegmentsForBreakBars}
                 xTicks={xTicks}
                 xDomainStart={xDomainStart}
                 xDomainEnd={xDomainEnd}
@@ -739,7 +771,7 @@ const CognitiveLoadChart: React.FC<CognitiveLoadChartProps> = ({
             size="sm"
             variant="bordered"
             onPress={() => setChartView(chartView === "total" ? "submetrics" : "total")}
-            className="min-w-0 px-2.5 py-1 h-7 text-xs text-foreground/60 hover:text-foreground border-white/10 hover:border-white/15"
+            className="btn-plain min-w-0 px-2.5 py-1 h-7 text-xs text-foreground/60 hover:text-foreground border-white/10 hover:border-white/15"
           >
             {chartView === "total" ? "Total score" : "Submetrics"}
           </Button>

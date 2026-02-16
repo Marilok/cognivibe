@@ -244,12 +244,12 @@ const SessionSurvey = ({
 
       <Button
         color="primary"
+        className="w-full text-white"
         onPress={handleSubmit}
         isDisabled={!allQuestionsAnswered || isSubmitting}
         isLoading={isSubmitting}
         startContent={!isSubmitting ? <IconSend className="h-4 w-4" /> : undefined}
         size={compact ? "sm" : "md"}
-        className="w-full"
       >
         {isSubmitting ? "Submitting..." : "Submit"}
       </Button>

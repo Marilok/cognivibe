@@ -43,7 +43,7 @@ const MeasureButton: React.FC = () => {
           <span className="absolute inset-0 bg-[linear-gradient(45deg,#A07CEF_0%,#A07CEF_60%,#FF709B_100%)] opacity-25" />
         )}
         <span
-          className={`relative inline-flex h-full w-full items-center justify-center rounded-full px-4 py-1 text-sm font-semibold backdrop-blur-sm transition-all duration-300 ${
+          className={`relative inline-flex h-full w-full items-center justify-center rounded-full px-4 py-1 text-sm backdrop-blur-sm transition-all duration-300 ${
             isMeasuring
               ? "bg-transparent text-white"
               : "bg-content1 text-foreground border border-white/10 hover:border-primary/30"

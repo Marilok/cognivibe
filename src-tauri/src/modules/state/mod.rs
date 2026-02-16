@@ -7,7 +7,7 @@ pub use types::{AppState, CategoryChangeEvent, ExtremeZScoreAlert, SessionData};
 // Re-export functions
 pub use functions::clear_extreme_zscore_alert::clear_extreme_zscore_alert;
 pub use functions::clear_session_state::clear_session_state;
-pub use functions::focus_timer::{start_focus_session, get_focus_session_state, stop_focus_session};
+pub use functions::focus_timer::{start_focus_session, get_focus_session_state, stop_focus_session, extend_focus_session};
 pub use functions::get_extreme_zscore_alert::get_extreme_zscore_alert;
 pub use functions::get_measuring_state::get_measuring_state;
 pub use functions::get_session_info::get_session_info;

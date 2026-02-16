@@ -12,9 +12,9 @@ import MeasureButton from "./MeasureButton";
 import {
   HelpModal,
   LogoutModal,
-  SettingsModal,
   UserProfileModal,
 } from "../modals";
+import { openSettingsWindow } from "../../utils/openSettingsWindow";
 import { IconUser } from "@tabler/icons-react";
 
 interface AppNavbarProps {
@@ -35,11 +35,6 @@ const AppNavbar: React.FC<AppNavbarProps> = () => {
     isOpen: isLogoutOpen,
     onOpen: onLogoutOpen,
     onOpenChange: onLogoutOpenChange,
-  } = useDisclosure();
-  const {
-    isOpen: isSettingsOpen,
-    onOpen: onSettingsOpen,
-    onOpenChange: onSettingsOpenChange,
   } = useDisclosure();
   const {
     isOpen: isProfileOpen,
@@ -65,7 +60,6 @@ const AppNavbar: React.FC<AppNavbarProps> = () => {
       </NavbarContent>
       <NavbarContent as="div" justify="end">
         <Avatar
-          isBordered
           as="button"
           className="transition-transform cursor-pointer hover:scale-105 select-none"
           color="primary"
@@ -78,16 +72,12 @@ const AppNavbar: React.FC<AppNavbarProps> = () => {
       <UserProfileModal
         isOpen={isProfileOpen}
         onOpenChange={onProfileOpenChange}
-        onSettingsOpen={onSettingsOpen}
+        onSettingsOpen={openSettingsWindow}
         onHelpOpen={onHelpOpen}
         onLogoutOpen={onLogoutOpen}
       />
       <HelpModal isOpen={isHelpOpen} onOpenChange={onHelpOpenChange} />
       <LogoutModal isOpen={isLogoutOpen} onOpenChange={onLogoutOpenChange} />
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onOpenChange={onSettingsOpenChange}
-      />
     </Navbar>
   );
 };

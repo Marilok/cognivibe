@@ -15,7 +15,7 @@ use crate::modules::utils::get_utils_prefix;
 ///
 /// # Arguments
 /// * `app` - Reference to the Tauri app handle for accessing windows
-pub fn focus_main_window(app: &AppHandle) {
+pub fn focus_main_window_impl(app: &AppHandle) {
     if let Some(window) = app.get_webview_window("main") {
         #[cfg(debug_assertions)]
         println!("{}Focusing main window", get_utils_prefix());
@@ -28,4 +28,10 @@ pub fn focus_main_window(app: &AppHandle) {
         println!("{}Main window not found", get_utils_prefix());
         return;
     }
+}
+
+/// Tauri command to focus the main window. Callable from the frontend via invoke("focus_main_window").
+#[tauri::command]
+pub fn focus_main_window(app: AppHandle) {
+    focus_main_window_impl(&app);
 }

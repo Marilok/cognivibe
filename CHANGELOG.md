@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.6] - 2026-02-16
+
+### Added
+- Pomodoro section on dashboard with focus streak display and start button
+- PomodoroStartModal and PomodoroNextModal for starting and transitioning between focus sessions
+- PomodoroContext and usePomodoroStreak hook for streak tracking
+- Settings as dedicated window (openSettingsWindow) instead of modal
+
+### Changed
+- BreakManager and NotificationBar enhanced for improved Pomodoro integration
+- Dashboard components refactored with updated button styles
+- Survey sliders updated per style guide; deprecated components removed
+
+### Removed
+- Debug buttons for break and focus nudges from dashboard
+
 ## [1.1.5] - 2026-02-10
 
 ### Changed

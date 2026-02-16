@@ -60,6 +60,20 @@ h1, h2, h3, h4, h5, h6 {
   font-family: "Now", sans-serif;
 }
 
+/* Action/CTA buttons: full, filled, prominent — Now, medium, uppercase */
+button:not(.btn-plain) {
+  font-family: "Now", sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+/* Infrastructural buttons: smaller, outlined, UI controls — Montserrat, normal casing */
+.btn-plain {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 400;
+  text-transform: none;
+}
+
 /* Custom Scrollbar Styles */
 ::-webkit-scrollbar {
   width: 10px;

@@ -196,6 +196,7 @@ export interface SessionData {
   length: number;
   score_total: number | null;
   category_share: Record<string, number>;
+  pomodoro?: boolean;
   // Actual activity timestamps from behavioral_metrics_log (MIN/MAX of minute_timestamp)
   // These represent when user activity actually occurred, not session creation/end times
   activity_start: string | null;
@@ -236,7 +237,8 @@ export interface EndSessionResponse {
  */
 export async function endSessionWithSurvey(
   sessionId: string,
-  scores?: QuestionnaireScores
+  scores?: QuestionnaireScores,
+  pomodoro?: boolean
 ): Promise<EndSessionResponse> {
   console.log("[SESSION] Starting endSessionWithSurvey", {
     sessionId,
@@ -270,6 +272,7 @@ export async function endSessionWithSurvey(
       },
       body: JSON.stringify({
         survey_scores: scores,
+        pomodoro: pomodoro ?? false,
       }),
     });
 

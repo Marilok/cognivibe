@@ -3,7 +3,5 @@ export { default as ErrorPage } from "./ErrorPage";
 export { default as SpinnerPage } from "./SpinnerPage";
 export { default as DasboardPage } from "./DashboardPage";
 export { default as TourPage } from "./TourPage";
-export { default as BreakWarningPage } from "./BreakWarningPage";
 export { default as BreakPage } from "./BreakPage";
-export { default as FocusNudgePage } from "./FocusNudgePage";
-export { default as FocusTimerPage } from "./FocusTimerPage";
+export { default as SettingsPage } from "./SettingsPage";

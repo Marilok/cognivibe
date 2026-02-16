@@ -69,8 +69,8 @@ const ZScoreSlider = ({
   };
 
   return (
-    <div className="w-full space-y-3">
-      <p className="text-base font-medium text-foreground">{question.text}</p>
+    <div className="w-full space-y-2">
+      <p className="text-sm font-medium text-foreground">{question.text}</p>
       <div className="px-2">
         <Slider
           aria-label={question.text}
@@ -81,19 +81,19 @@ const ZScoreSlider = ({
           onChange={handleChange}
           onChangeEnd={handleChangeEnd}
           className="w-full"
-          size="lg"
+          size="md"
           color={hasBeenTouched ? "primary" : "foreground"}
           showTooltip
           tooltipProps={{
             content: String(value),
           }}
         />
-        <div className="flex justify-between mt-2">
-          <span className="text-xs text-default-500">{question.leftLabel}</span>
-          <span className="text-sm font-semibold text-primary">
+        <div className="flex justify-between mt-1">
+          <span className="text-xs text-default-700">{question.leftLabel}</span>
+          <span className="text-xs font-semibold text-primary">
             {hasBeenTouched ? value : "—"}
           </span>
-          <span className="text-xs text-default-500">{question.rightLabel}</span>
+          <span className="text-xs text-default-700">{question.rightLabel}</span>
         </div>
       </div>
     </div>

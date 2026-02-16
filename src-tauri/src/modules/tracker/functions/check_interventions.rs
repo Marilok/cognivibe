@@ -1,10 +1,11 @@
 use std::sync::Mutex;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_notification::NotificationExt;
 
 use crate::modules::state::AppState;
+use crate::modules::state::functions::focus_timer::schedule_tray_menu;
 
 /// Cooldown between break nudges (45 minutes)
 const BREAK_COOLDOWN_SECS: u64 = 45 * 60;
@@ -121,11 +122,14 @@ pub fn check_interventions(
             eprintln!("[INTERVENTIONS] Failed to emit break-nudge: {}", e);
         }
 
-        // Update cooldown
+        // Update cooldown and tray state
         if let Ok(mut app_state) = state.lock() {
             app_state.last_break_nudge_time = Some(Instant::now());
             app_state.sent_break_notification = true;
+            app_state.break_nudge_active = true;
+            app_state.break_nudge_end_time = Some(Instant::now() + Duration::from_secs(120));
         }
+        schedule_tray_menu(app_handle);
     }
 
     // Emit focus nudge event + system notification
@@ -159,11 +163,13 @@ pub fn check_interventions(
             eprintln!("[INTERVENTIONS] Failed to emit focus-nudge: {}", e);
         }
 
-        // Update cooldown and counter
+        // Update cooldown, counter, and tray state
         if let Ok(mut app_state) = state.lock() {
             app_state.last_focus_nudge_time = Some(Instant::now());
             app_state.focus_nudge_count_session += 1;
+            app_state.focus_nudge_active = true;
         }
+        schedule_tray_menu(app_handle);
     }
 }
 
