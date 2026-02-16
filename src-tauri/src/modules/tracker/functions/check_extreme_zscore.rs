@@ -118,6 +118,7 @@ pub async fn check_and_handle_extreme_zscore(
     if let Some(score_total) = data.score_total {
         let state = app_handle.state::<Mutex<AppState>>();
         if let Ok(mut app_state) = state.lock() {
+            app_state.last_cognitive_load = Some(score_total);
             let threshold = app_state.settings.break_score_threshold as f64;
             if score_total >= threshold {
                 app_state.consecutive_high_score_count += 1;

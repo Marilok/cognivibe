@@ -94,8 +94,9 @@ const BreakManager = () => {
       });
       unlisteners.push(unFocusAction);
 
-      const unBreakCompleted = await listen("break-completed", () => {
+      const unBreakCompleted = await listen("break-completed", async () => {
         console.log("[BREAK_MANAGER] Break completed");
+        await invoke("end_break_session").catch(() => {});
         breakOverlayRef.current = null;
         if (pomodoro?.active && pomodoro.currentSession < pomodoro.totalSessions) {
           setShowPomodoroNextModal(true);
@@ -105,8 +106,9 @@ const BreakManager = () => {
       });
       unlisteners.push(unBreakCompleted);
 
-      const unBreakSkipped = await listen("break-skipped", () => {
+      const unBreakSkipped = await listen("break-skipped", async () => {
         console.log("[BREAK_MANAGER] Break skipped");
+        await invoke("end_break_session").catch(() => {});
         breakOverlayRef.current = null;
         if (pomodoro?.active && pomodoro.currentSession < pomodoro.totalSessions) {
           setShowPomodoroNextModal(true);
@@ -137,6 +139,20 @@ const BreakManager = () => {
         }
       });
       unlisteners.push(unFocusComplete);
+
+      const unFocusSkip = await listen("focus-session-skip", () => {
+        console.log("[BREAK_MANAGER] Focus session skipped (simulate complete)");
+        if (pomodoro?.active) {
+          pomodoro.recordFocusComplete();
+          spawnBreakOverlay({
+            duration: pomodoro.baseBreakMin * 60,
+            pomodoro: true,
+            sessionMinutes: pomodoro.nextFocusMin,
+            reason: "pomodoro",
+          });
+        }
+      });
+      unlisteners.push(unFocusSkip);
     };
 
     setup();
@@ -214,6 +230,8 @@ const BreakManager = () => {
       });
 
       breakOverlayRef.current = win;
+
+      await invoke("start_break_session", { durationSecs: duration });
     } finally {
       spawningOverlayRef.current = false;
     }

@@ -74,10 +74,24 @@ pub struct AppState {
     pub focus_session_active: bool,
     /// When the focus timer session ends
     pub focus_session_end_time: Option<SystemTime>,
+    /// Total duration of current focus session (for emit on complete)
+    pub focus_session_total_secs: Option<u64>,
     /// Rolling window of per-minute tab change counts (last 5 minutes)
     pub recent_tab_changes: Vec<u32>,
     /// Rolling window of per-minute window change counts (last 5 minutes)
     pub recent_window_changes: Vec<u32>,
+    /// Whether a break session is currently active (overlay open)
+    pub break_session_active: bool,
+    /// When the break session ends
+    pub break_session_end_time: Option<SystemTime>,
+    /// Whether a break nudge countdown is active (120s before auto-start)
+    pub break_nudge_active: bool,
+    /// When the break nudge countdown reaches 0
+    pub break_nudge_end_time: Option<Instant>,
+    /// Whether a focus nudge is active (stays until dismissed)
+    pub focus_nudge_active: bool,
+    /// Latest cognitive load from last 5-min interval (same as dashboard)
+    pub last_cognitive_load: Option<f64>,
 }
 
 /// Represents a category change event for tracking time spent in each category

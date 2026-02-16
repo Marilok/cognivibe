@@ -1,7 +1,8 @@
 import { createRootRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import "../App.css";
 import { useEffect, useState } from "react";
 import { platform } from "@tauri-apps/plugin-os";
-import { HeroUIProvider } from "@heroui/react";
+import { HeroUIProvider, ToastProvider } from "@heroui/react";
 import { AppTemplate, PermissionsWelcomeModal } from "../components";
 import BreakManager from "../components/BreakManager";
 import { PomodoroProvider } from "../contexts/PomodoroContext";
@@ -16,7 +17,7 @@ import { invoke } from "@tauri-apps/api/core";
 const PERMISSIONS_ACKNOWLEDGED_KEY = "cognivibe_permissions_acknowledged";
 
 /** Routes that render in their own popup/overlay windows. */
-const POPUP_ROUTES = ["/break", "/tour"];
+const POPUP_ROUTES = ["/break", "/tour", "/settings"];
 
 export const Route = createRootRoute({
   component: () => {
@@ -102,12 +103,15 @@ export const Route = createRootRoute({
     );
 
     // Popup windows: bare HeroUI only — no AppTemplate, no useUpdater,
-    // no ToastProvider, no UpdateModal. This prevents the updater from
-    // freezing the popup's JS event loop and making buttons unresponsive.
+    // no UpdateModal. Settings window needs ToastProvider for save feedback.
     if (isPopupWindow) {
+      const isSettingsWindow = window.location.pathname.startsWith("/settings");
       return (
         <HeroUIProvider>
           <Outlet />
+          {isSettingsWindow && (
+            <ToastProvider placement="top-center" toastOffset={40} />
+          )}
         </HeroUIProvider>
       );
     }

@@ -59,11 +59,15 @@ pub fn run() -> () {
             get_focus_session_state,
             stop_focus_session,
             extend_focus_session,
+            modules::state::functions::tray_commands::start_break_session,
+            modules::state::functions::tray_commands::end_break_session,
+            modules::state::functions::tray_commands::extend_break_session,
+            modules::state::functions::tray_commands::extend_break_nudge,
+            modules::state::functions::tray_commands::dismiss_break_nudge,
+            modules::state::functions::tray_commands::dismiss_focus_nudge,
             capture_screen,
             force_destroy_window,
             modules::utils::functions::focus_main_window::focus_main_window,
-            modules::debug::trigger_debug_nudge::trigger_debug_break_nudge,
-            modules::debug::trigger_debug_nudge::trigger_debug_focus_nudge,
             modules::utils::functions::open_notification_settings::open_notification_settings
         ])
         .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
@@ -178,12 +182,16 @@ pub fn run() -> () {
             println!("{}Starting global input tracker", get_init_prefix());
             start_global_input_tracker(app.handle().clone());
 
-            // System tray with Show / Quit menu
-            let menu = tauri::menu::MenuBuilder::new(app.handle())
-                .text("show", "Show CogniVibe")
-                .separator()
-                .text("quit", "Quit")
-                .build()?;
+            // System tray with dynamic menu
+            let menu = modules::state::functions::tray_menu::build_tray_menu(app.handle())
+                .unwrap_or_else(|_| {
+                    tauri::menu::MenuBuilder::new(app.handle())
+                        .text("show", "Show CogniVibe")
+                        .separator()
+                        .text("quit", "Quit")
+                        .build()
+                        .expect("fallback menu build")
+                });
 
             let _tray = {
                 let builder = TrayIconBuilder::with_id("main")
@@ -195,6 +203,85 @@ pub fn run() -> () {
                     match event.id.as_ref() {
                         "show" => {
                             focus_main_window_impl(app);
+                        }
+                        "add_5_min" => {
+                            let _ = modules::state::functions::focus_timer::extend_focus_session(
+                                app.clone(),
+                                5 * 60,
+                            );
+                            modules::state::functions::focus_timer::schedule_tray_menu(app);
+                        }
+                        "skip_to_break" => {
+                            let app_clone = app.clone();
+                            tauri::async_runtime::spawn(async move {
+                                let _ = modules::state::functions::focus_timer::stop_focus_session(app_clone.clone());
+                                let _ = app_clone.emit("focus-session-skip", ());
+                                modules::state::functions::focus_timer::schedule_tray_menu(&app_clone);
+                            });
+                        }
+                        "cancel_focus" => {
+                            let app_clone = app.clone();
+                            tauri::async_runtime::spawn(async move {
+                                let _ = modules::state::functions::focus_timer::stop_focus_session(app_clone.clone());
+                                let _ = app_clone.emit("focus-session-cancelled", ());
+                                modules::state::functions::focus_timer::schedule_tray_menu(&app_clone);
+                            });
+                        }
+                        "add_1_min_break" => {
+                            let _ = modules::state::functions::tray_commands::extend_break_session(
+                                app.clone(),
+                                60,
+                            );
+                            modules::state::functions::focus_timer::schedule_tray_menu(app);
+                        }
+                        "skip_break" => {
+                            let app_clone = app.clone();
+                            tauri::async_runtime::spawn(async move {
+                                let _ = modules::state::functions::tray_commands::end_break_session(app_clone.clone());
+                                let _ = app_clone.emit("tray-skip-break", ());
+                                modules::state::functions::focus_timer::schedule_tray_menu(&app_clone);
+                            });
+                        }
+                        "prolong_nudge" => {
+                            let _ = modules::state::functions::tray_commands::extend_break_nudge(
+                                app.clone(),
+                                120,
+                            );
+                            modules::state::functions::focus_timer::schedule_tray_menu(app);
+                        }
+                        "start_nudge" => {
+                            let app_clone = app.clone();
+                            tauri::async_runtime::spawn(async move {
+                                let _ = modules::state::functions::tray_commands::dismiss_break_nudge(app_clone.clone());
+                                focus_main_window_impl(&app_clone);
+                                let _ = app_clone.emit("break-warning-action", serde_json::json!({ "action": "start" }));
+                                modules::state::functions::focus_timer::schedule_tray_menu(&app_clone);
+                            });
+                        }
+                        "dismiss_nudge" => {
+                            let app_clone = app.clone();
+                            tauri::async_runtime::spawn(async move {
+                                let _ = modules::state::functions::tray_commands::dismiss_break_nudge(app_clone.clone());
+                                let _ = app_clone.emit("break-warning-action", serde_json::json!({ "action": "skip" }));
+                                modules::state::functions::focus_timer::schedule_tray_menu(&app_clone);
+                            });
+                        }
+                        "start_focus" => {
+                            let app_clone = app.clone();
+                            tauri::async_runtime::spawn(async move {
+                                let _ = modules::state::functions::tray_commands::dismiss_focus_nudge(app_clone.clone());
+                                focus_main_window_impl(&app_clone);
+                                let _ = app_clone.emit("focus-action", serde_json::json!({ "action": "start" }));
+                                modules::state::functions::focus_timer::schedule_tray_menu(&app_clone);
+                            });
+                        }
+                        "dismiss_focus" => {
+                            let app_clone = app.clone();
+                            tauri::async_runtime::spawn(async move {
+                                let _ = modules::state::functions::tray_commands::dismiss_focus_nudge(app_clone.clone());
+                                let _ = app_clone.emit("focus-action", serde_json::json!({ "action": "dismiss" }));
+                                modules::state::functions::focus_timer::schedule_tray_menu(&app_clone);
+                            });
                         }
                         "quit" => {
                             let app_handle = app.clone();
@@ -234,6 +321,9 @@ pub fn run() -> () {
                 })
                 .build(app)?;
             };
+
+            // Start unified tray update loop (focus, break, nudges, cognitive load)
+            modules::state::functions::focus_timer::spawn_tray_update_loop(app.handle().clone());
 
             // Window close: hide to tray instead of quitting
             let app_handle = app.handle().clone();

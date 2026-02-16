@@ -165,6 +165,7 @@ const PomodoroNextModal: React.FC<PomodoroNextModalProps> = ({
               </Button>
               <Button
                 color="primary"
+                className="text-white"
                 onPress={handleContinue}
                 isDisabled={loading}
               >

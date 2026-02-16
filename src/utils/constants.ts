@@ -7,6 +7,7 @@ export const ROUTES = {
   NOT_FOUND: "/404",
   TOUR: "/tour",
   BREAK: "/break",
+  SETTINGS: "/settings",
 } as const;
 
 export type AcceptableRoutes = (typeof ROUTES)[keyof typeof ROUTES];

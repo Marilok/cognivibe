@@ -95,12 +95,14 @@ const LazySubmetricsChart = lazy(() =>
     const SubmetricsChartComponent = ({
       data,
       gapSegments,
+      gapSegmentsForBreakBars,
       xTicks,
       xDomainStart,
       xDomainEnd,
     }: {
       data: ChartPoint[];
       gapSegments: GapSegment[];
+      gapSegmentsForBreakBars: GapSegment[];
       xTicks: number[];
       xDomainStart: number;
       xDomainEnd: number;
@@ -197,8 +199,8 @@ const LazySubmetricsChart = lazy(() =>
               />
             ))}
 
-            {/* Gap markers with coffee mug */}
-            <recharts.Customized component={GapMarkers} gapSegments={gapSegments} />
+            {/* Gap markers with coffee mug (merged bars only) */}
+            <recharts.Customized component={GapMarkers} gapSegments={gapSegmentsForBreakBars} />
 
             {/* Focus line (blue) */}
             <recharts.Line

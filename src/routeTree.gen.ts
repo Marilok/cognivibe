@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from "./routes/__root"
 import { Route as TourRouteRouteImport } from "./routes/tour/route"
+import { Route as SettingsRouteRouteImport } from "./routes/settings/route"
 import { Route as DashboardRouteRouteImport } from "./routes/dashboard/route"
 import { Route as BreakRouteRouteImport } from "./routes/break/route"
 import { Route as R404RouteRouteImport } from "./routes/404/route"
@@ -21,6 +22,11 @@ import { Route as AuthCallbackRouteRouteImport } from "./routes/auth/callback/ro
 const TourRouteRoute = TourRouteRouteImport.update({
   id: "/tour",
   path: "/tour",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRouteRoute = SettingsRouteRouteImport.update({
+  id: "/settings",
+  path: "/settings",
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   "/404": typeof R404RouteRoute
   "/break": typeof BreakRouteRoute
   "/dashboard": typeof DashboardRouteRoute
+  "/settings": typeof SettingsRouteRoute
   "/tour": typeof TourRouteRoute
   "/auth/callback": typeof AuthCallbackRouteRoute
   "/auth/error": typeof AuthErrorRouteRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   "/404": typeof R404RouteRoute
   "/break": typeof BreakRouteRoute
   "/dashboard": typeof DashboardRouteRoute
+  "/settings": typeof SettingsRouteRoute
   "/tour": typeof TourRouteRoute
   "/auth/callback": typeof AuthCallbackRouteRoute
   "/auth/error": typeof AuthErrorRouteRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   "/404": typeof R404RouteRoute
   "/break": typeof BreakRouteRoute
   "/dashboard": typeof DashboardRouteRoute
+  "/settings": typeof SettingsRouteRoute
   "/tour": typeof TourRouteRoute
   "/auth/callback": typeof AuthCallbackRouteRoute
   "/auth/error": typeof AuthErrorRouteRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | "/404"
     | "/break"
     | "/dashboard"
+    | "/settings"
     | "/tour"
     | "/auth/callback"
     | "/auth/error"
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | "/404"
     | "/break"
     | "/dashboard"
+    | "/settings"
     | "/tour"
     | "/auth/callback"
     | "/auth/error"
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | "/404"
     | "/break"
     | "/dashboard"
+    | "/settings"
     | "/tour"
     | "/auth/callback"
     | "/auth/error"
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   R404RouteRoute: typeof R404RouteRoute
   BreakRouteRoute: typeof BreakRouteRoute
   DashboardRouteRoute: typeof DashboardRouteRoute
+  SettingsRouteRoute: typeof SettingsRouteRoute
   TourRouteRoute: typeof TourRouteRoute
   AuthCallbackRouteRoute: typeof AuthCallbackRouteRoute
   AuthErrorRouteRoute: typeof AuthErrorRouteRoute
@@ -141,6 +154,13 @@ declare module "@tanstack/react-router" {
       path: "/tour"
       fullPath: "/tour"
       preLoaderRoute: typeof TourRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/settings": {
+      id: "/settings"
+      path: "/settings"
+      fullPath: "/settings"
+      preLoaderRoute: typeof SettingsRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     "/dashboard": {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   R404RouteRoute: R404RouteRoute,
   BreakRouteRoute: BreakRouteRoute,
   DashboardRouteRoute: DashboardRouteRoute,
+  SettingsRouteRoute: SettingsRouteRoute,
   TourRouteRoute: TourRouteRoute,
   AuthCallbackRouteRoute: AuthCallbackRouteRoute,
   AuthErrorRouteRoute: AuthErrorRouteRoute,

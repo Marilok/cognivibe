@@ -6,7 +6,6 @@ import {
   ProductivityTimeCard,
   GradientCard,
   NotificationBar,
-  DebugNudgeButtons,
 } from "..";
 import { useDashboardData } from "../../hooks";
 import { useEffect, useState, useCallback } from "react";
@@ -140,8 +139,6 @@ function DashboardPage() {
               <GradientCard />
             </div>
           </div>
-
-          <DebugNudgeButtons />
         </div>
       </main>
     </>

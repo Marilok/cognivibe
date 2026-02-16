@@ -163,6 +163,16 @@ const NotificationBar = ({ onStartClick, onEmpty }: NotificationBarProps) => {
     }
   };
 
+  const handleSkipFocus = async () => {
+    try {
+      await invoke("stop_focus_session");
+      setFocusRemaining(null);
+      await emit("focus-session-skip", {});
+    } catch {
+      // ignore
+    }
+  };
+
   const handleExtendFocus = async () => {
     try {
       await invoke("extend_focus_session", { extra_secs: 5 * 60 });
@@ -174,6 +184,7 @@ const NotificationBar = ({ onStartClick, onEmpty }: NotificationBarProps) => {
   const handleBreakStartNow = useCallback(() => {
     if (!breakStartEmittedRef.current) {
       breakStartEmittedRef.current = true;
+      invoke("dismiss_break_nudge").catch(() => {});
       invoke("focus_main_window").catch(() => {});
       emit("break-warning-action", { action: "start" });
     }
@@ -181,20 +192,24 @@ const NotificationBar = ({ onStartClick, onEmpty }: NotificationBarProps) => {
   }, []);
 
   const handleBreakSkip = useCallback(() => {
+    invoke("dismiss_break_nudge").catch(() => {});
     setBreakNudge(null);
     emit("break-warning-action", { action: "skip" });
   }, []);
 
   const handleBreakAddTime = useCallback(() => {
     setBreakCountdownSecs((prev) => prev + 120);
+    invoke("extend_break_nudge", { extraSecs: 120 }).catch(() => {});
   }, []);
 
   const handleFocusStart = useCallback(() => {
+    invoke("dismiss_focus_nudge").catch(() => {});
     setFocusNudge(null);
     emit("focus-action", { action: "start" });
   }, []);
 
   const handleFocusDismiss = useCallback(() => {
+    invoke("dismiss_focus_nudge").catch(() => {});
     setFocusNudge(null);
     emit("focus-action", { action: "dismiss" });
   }, []);
@@ -377,6 +392,14 @@ const NotificationBar = ({ onStartClick, onEmpty }: NotificationBarProps) => {
               onPress={handleExtendFocus}
             >
               + 5 min
+            </Button>
+            <Button
+              size="sm"
+              variant="bordered"
+              className="btn-plain text-white/70 border-white/20"
+              onPress={handleSkipFocus}
+            >
+              Skip
             </Button>
             <Button
               className="bg-white text-[#ff709b]"

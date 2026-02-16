@@ -117,7 +117,7 @@ const PomodoroStartModal: React.FC<PomodoroStartModalProps> = ({
               <Button variant="light" onPress={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button color="primary" onPress={handleConfirm}>
+              <Button color="primary" className="text-white" onPress={handleConfirm}>
                 Start
               </Button>
             </ModalFooter>
